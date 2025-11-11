@@ -1,5 +1,4 @@
-import { 
-  Controller, Post, Body, HttpCode, HttpStatus, UseInterceptors, UploadedFile, Request, UseGuards, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, } from '@nestjs/common';
+import { Controller, Post, Body, HttpCode, HttpStatus, UseInterceptors, UploadedFile, Request, UseGuards, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
