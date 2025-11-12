@@ -39,10 +39,10 @@ export class PublicacionesService {
 	// Listar publicaciones
   async findAll(userId?: string, sortBy: 'date' | 'likes' = 'date', offset = 0,
     limit = 10, ): Promise<PublicacionDocument[]> {
-    const filter: any = { alta: true };
-    if (userId) filter.user = userId;
+    const filter: any = { eliminado: false };
+    if (userId) filter.usuario = userId;
 
-    const sort: any = sortBy === 'date' ? { createdAt: -1 } : { likesCount: -1 };
+    const sort: any = sortBy === 'date' ? { createdAt: -1 } : { likes: -1 };
 
     return this.publicacionModel
       .find(filter)
