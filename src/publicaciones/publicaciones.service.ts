@@ -37,7 +37,8 @@ export class PublicacionesService {
   }
 
 	// Listar publicaciones
-  async findAll(userId?: string, sortBy: 'date' | 'likes' = 'date', ): Promise<PublicacionDocument[]> {
+  async findAll(userId?: string, sortBy: 'date' | 'likes' = 'date', offset = 0,
+    limit = 10, ): Promise<PublicacionDocument[]> {
     const filter: any = { alta: true };
     if (userId) filter.user = userId;
 
@@ -46,8 +47,8 @@ export class PublicacionesService {
     return this.publicacionModel
       .find(filter)
       .sort(sort)
-      .skip(0)
-      .limit(10)
+      .skip(offset)
+      .limit(limit)
       .exec();
   }
 

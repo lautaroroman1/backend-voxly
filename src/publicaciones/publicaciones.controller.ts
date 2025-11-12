@@ -35,10 +35,18 @@ export class PublicacionesController {
   async findAll(
     @Query('userId') userId?: string,
     @Query('sortBy') sortBy: 'date' | 'likes' = 'date',
+    @Query('offset') offset = 0,
+    @Query('limit') limit = 10,
   ) {
+    //Convertimos offset y limit a número, porque query params siempre vienen como string
+    const offsetNumber = Number(offset);
+    const limitNumber = Number(limit);
+
     return this.publicacionesService.findAll(
       userId,
-      sortBy
+      sortBy,
+      offsetNumber,
+      limitNumber
     );
   }
 
