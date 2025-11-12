@@ -25,7 +25,7 @@ export class PublicacionesService {
 
     const newPost = new this.publicacionModel({
       ...createPublicacionDto,
-      user: userId,
+      usuario: userId,
       imageUrl,
       cloudinaryPublicId: publicId,
       likes: [],
