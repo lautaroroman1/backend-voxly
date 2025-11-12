@@ -14,19 +14,19 @@ export class PublicacionesService {
 
 	// Crear publicación
   async create(createPublicacionDto: CreatePublicacionDto, userId: string, file?: Express.Multer.File): Promise<PublicacionDocument> {
-    let imageUrl = null;
+    let imagenUrl = null;
     let publicId = null;
 
     if (file) {
       const uploadResult = await this.cloudinaryService.uploadImage(file);
-      imageUrl = uploadResult.secure_url;
+      imagenUrl = uploadResult.secure_url;
       publicId = uploadResult.public_id;
     }
 
     const newPost = new this.publicacionModel({
       ...createPublicacionDto,
       usuario: userId,
-      imageUrl,
+      imagenUrl,
       cloudinaryPublicId: publicId,
       likes: [],
       alta: true,
