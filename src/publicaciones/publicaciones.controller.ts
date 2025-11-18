@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Delete, Param, Body, Query, UploadedFile, UseInterceptors, Request, UseGuards, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, HttpCode, HttpStatus, Req } from '@nestjs/common';
+import { Controller, Get, Post, Delete, Param, Body, Query, UploadedFile, UseInterceptors, Request, UseGuards, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, HttpCode, HttpStatus, Req, NotFoundException } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { PublicacionesService } from './publicaciones.service';
 import { CreatePublicacionDto } from './dto/create-publicacion.dto';
@@ -48,6 +48,16 @@ export class PublicacionesController {
       offsetNumber,
       limitNumber
     );
+  }
+
+  // Obtener publicación por ID
+  @Get(':id')
+  async findOne(@Param('id') id: string) {
+    const publicacion = await this.publicacionesService.findById(id);
+    if (!publicacion) {
+      throw new NotFoundException('Publicación no encontrada');
+    }
+    return publicacion;
   }
 
   // Eliminar publicación (protegido)

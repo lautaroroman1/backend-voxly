@@ -6,11 +6,15 @@ import { Publicacion, PublicacionSchema } from './schemas/publicacion.schema';
 import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
+import { Comentario, ComentarioSchema } from './schemas/comentario.schema';
 
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Publicacion.name, schema: PublicacionSchema }]),
+    MongooseModule.forFeature([
+      { name: Publicacion.name, schema: PublicacionSchema },
+      { name: Comentario.name, schema: ComentarioSchema },
+    ]),
     CloudinaryModule,
     UsersModule, // UsersModule para poder acceder a los usuarios
     AuthModule,

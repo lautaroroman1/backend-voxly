@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException, BadRequestException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model, Types } from 'mongoose';
 import { Publicacion, PublicacionDocument } from './schemas/publicacion.schema';
@@ -55,6 +55,18 @@ export class PublicacionesService {
       .skip(offset)
       .limit(limit)
       .exec();
+  }
+
+  async findById(postId: string): Promise<PublicacionDocument | null> {
+    if (!Types.ObjectId.isValid(postId)) {
+        throw new BadRequestException('ID de publicación inválido');
+    }
+    
+    // Usamos .populate() para traer la información del usuario de la publicación
+    return this.publicacionModel
+        .findById(postId)
+        .populate('usuario', 'username fotoPerfil') // Especifica qué campos del usuario quieres
+        .exec();
   }
 
 	// Baja lógica de publicación
