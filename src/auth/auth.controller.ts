@@ -17,4 +17,20 @@ export class AuthController {
   async getProfile(@Request() req) {
     return this.authService.getUpdatedProfile(req.user.sub);
   }
+
+  // [NUEVA RUTA] Ruta autorizar (POST)
+  @HttpCode(HttpStatus.OK)
+  @Post('autorizar')
+  async authorize(@Body('token') token: string) {
+    // La lógica de validación se delega al servicio y lanza 401 si falla
+    return this.authService.autorizarToken(token);
+  }
+
+  // [NUEVA RUTA] Ruta refrescar (POST)
+  @HttpCode(HttpStatus.OK)
+  @Post('refrescar')
+  async refreshToken(@Body('token') token: string) {
+    // Devuelve un nuevo access_token
+    return this.authService.refrescarToken(token);
+  }
 }
