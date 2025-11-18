@@ -1,6 +1,6 @@
 import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
-import { Model } from 'mongoose';
+import { Model, Types } from 'mongoose';
 import { Publicacion, PublicacionDocument } from './schemas/publicacion.schema';
 import { CreatePublicacionDto } from './dto/create-publicacion.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
@@ -40,7 +40,12 @@ export class PublicacionesService {
   async findAll(userId?: string, sortBy: 'date' | 'likes' = 'date', offset = 0,
     limit = 10, ): Promise<PublicacionDocument[]> {
     const filter: any = { eliminado: false };
-    if (userId) filter.usuario = userId;
+
+    // [MODIFICACIÓN] Convertir userId a Types.ObjectId
+    if (userId) {
+        // Mongoose espera un objeto ObjectId para la referencia.
+        filter.usuario = new Types.ObjectId(userId);
+    }
 
     const sort: any = sortBy === 'date' ? { createdAt: -1 } : { likes: -1 };
 
