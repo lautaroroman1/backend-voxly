@@ -121,8 +121,13 @@ export class PublicacionesService {
             modificado: false,
         });
 
-        // NOTA: Se podría validar aquí que la publicación exista
-        return newComment.save();
+        // 1. Guardar el nuevo comentario
+        const savedComment = await newComment.save();
+        
+        // 2. Ejecutar populate antes de devolverlo al frontend (para traer el usuario y foto)
+        await savedComment.populate('usuario', 'username fotoPerfil');
+
+        return savedComment;
     }
 
     // [NUEVO MÉTODO] Listar comentarios por publicación (GET)
@@ -158,7 +163,13 @@ export class PublicacionesService {
         comentario.mensaje = nuevoMensaje;
         comentario.modificado = true; // Requisito: Agrega el atributo modificado: true
 
-        return comentario.save();
+        // 1. Guardar los cambios
+        const updatedComment = await comentario.save();
+        
+        // 2. Ejecutar la población antes de devolverlo al frontend
+        await updatedComment.populate('usuario', 'username fotoPerfil'); // [IMPORTANTE]
+
+        return updatedComment;
     }
 
 }
