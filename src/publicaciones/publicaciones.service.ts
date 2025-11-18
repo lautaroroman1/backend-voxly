@@ -4,11 +4,13 @@ import { Model, Types } from 'mongoose';
 import { Publicacion, PublicacionDocument } from './schemas/publicacion.schema';
 import { CreatePublicacionDto } from './dto/create-publicacion.dto';
 import { CloudinaryService } from 'src/cloudinary/cloudinary.service';
+import { Comentario, ComentarioDocument } from './schemas/comentario.schema';
 
 @Injectable()
 export class PublicacionesService {
 	constructor(
 		@InjectModel(Publicacion.name) private publicacionModel: Model<PublicacionDocument>,
+    @InjectModel(Comentario.name) private comentarioModel: Model<ComentarioDocument>,
 		private cloudinaryService: CloudinaryService,
 	) {}
 
@@ -51,6 +53,7 @@ export class PublicacionesService {
 
     return this.publicacionModel
       .find(filter)
+      .populate('usuario', 'username fotoPerfil')
       .sort(sort)
       .skip(offset)
       .limit(limit)
@@ -105,5 +108,57 @@ export class PublicacionesService {
     post.likes = post.likes.filter((id) => id.toString() !== userId);
     return post.save();
   }
+
+  async addComment(publicacionId: string, userId: string, mensaje: string): Promise<ComentarioDocument> {
+        if (!Types.ObjectId.isValid(publicacionId)) {
+            throw new BadRequestException('ID de publicación inválido');
+        }
+
+        const newComment = new this.comentarioModel({
+            publicacion: new Types.ObjectId(publicacionId),
+            usuario: new Types.ObjectId(userId),
+            mensaje,
+            modificado: false,
+        });
+
+        // NOTA: Se podría validar aquí que la publicación exista
+        return newComment.save();
+    }
+
+    // [NUEVO MÉTODO] Listar comentarios por publicación (GET)
+    async findCommentsByPost(publicacionId: string, offset = 0, limit = 10): Promise<ComentarioDocument[]> {
+        if (!Types.ObjectId.isValid(publicacionId)) {
+            throw new BadRequestException('ID de publicación inválido');
+        }
+
+        // Requisito: Ordenar los resultados, los más recientes primero.
+        // Requisito: Debe permitir paginar los resultados.
+        return this.comentarioModel
+            .find({ publicacion: new Types.ObjectId(publicacionId) })
+            .sort({ createdAt: -1 }) // Los más recientes primero
+            .skip(offset)
+            .limit(limit)
+            .populate('usuario', 'username fotoPerfil') // Rellenar datos del usuario
+            .exec();
+    }
+
+    // [NUEVO MÉTODO] Modificar comentario (PUT)
+    async updateComment(comentarioId: string, userId: string, nuevoMensaje: string): Promise<ComentarioDocument> {
+        const comentario = await this.comentarioModel.findById(comentarioId);
+
+        if (!comentario) {
+            throw new NotFoundException('Comentario no encontrado');
+        }
+
+        // Validar que solo el dueño del comentario puede editar
+        if (comentario.usuario.toString() !== userId) {
+            throw new ForbiddenException('No tienes permisos para editar este comentario');
+        }
+
+        comentario.mensaje = nuevoMensaje;
+        comentario.modificado = true; // Requisito: Agrega el atributo modificado: true
+
+        return comentario.save();
+    }
 
 }

@@ -7,6 +7,7 @@ import { CloudinaryModule } from 'src/cloudinary/cloudinary.module';
 import { UsersModule } from 'src/users/users.module';
 import { AuthModule } from 'src/auth/auth.module';
 import { Comentario, ComentarioSchema } from './schemas/comentario.schema';
+import { ComentariosController } from './comentarios.controller';
 
 
 @Module({
@@ -21,7 +22,7 @@ import { Comentario, ComentarioSchema } from './schemas/comentario.schema';
   ],
   providers: [PublicacionesService],
   exports: [PublicacionesService],
-  controllers: [PublicacionesController],
+  controllers: [PublicacionesController, ComentariosController],
 
 })
 export class PublicacionesModule {}
