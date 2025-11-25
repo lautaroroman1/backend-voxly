@@ -22,6 +22,7 @@ export class AuthService {
     }
 
     const payload = {
+      role: user.perfil,
       sub: user._id.toString(),
       username: user.username,
       perfil: user.perfil

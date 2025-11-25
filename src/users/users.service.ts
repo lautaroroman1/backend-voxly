@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException, ForbiddenException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import * as bcrypt from 'bcrypt';
@@ -62,6 +62,32 @@ export class UsersService {
     user.fotoPerfil = uploadResult.secure_url;
     user.cloudinaryPublicId = uploadResult.public_id;
     
+    return user.save();
+  }
+
+  //Listar usuarios
+  async findAll(): Promise<UserDocument[]> {
+    // Excluye la contraseña y ordna por nombre de usuario
+    return this.userModel
+        .find()
+        .sort({ username: 1 }) 
+        .select('-passwordHash')
+        .exec();
+  }
+  
+  // Alta y baja de usuario
+  async toggleAlta(userId: string, isAlta: boolean): Promise<UserDocument> {
+    const user = await this.userModel.findById(userId);
+    if (!user) {
+        throw new NotFoundException('Usuario no encontrado');
+    }
+
+    //Prevenir que se deshabilite un admin
+    if (user.perfil === 'admin' && !isAlta) {
+        throw new ForbiddenException('No puedes deshabilitar una cuenta de administrador');
+    }
+    
+    user.alta = isAlta;
     return user.save();
   }
 }

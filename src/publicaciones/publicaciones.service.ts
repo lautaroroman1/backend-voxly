@@ -49,15 +49,79 @@ export class PublicacionesService {
         filter.usuario = new Types.ObjectId(userId);
     }
 
-    const sort: any = sortBy === 'date' ? { createdAt: -1 } : { likes: -1 };
+    // 1. ORDENAR POR FECHA (MÁS EFICIENTE CON FIND)
+      if (sortBy === 'date') {
+          const sort: any = { createdAt: -1 };
 
-    return this.publicacionModel
-      .find(filter)
-      .populate('usuario', 'username fotoPerfil')
-      .sort(sort)
-      .skip(offset)
-      .limit(limit)
-      .exec();
+          return this.publicacionModel
+              .find(filter)
+              .sort(sort)
+              .skip(offset)
+              .limit(limit)
+              // Usamos populate para traer datos de usuario
+              .populate('usuario', 'username fotoPerfil') 
+              .exec();
+      } 
+      
+      // 2. ORDENAR POR LIKES (REQUIERE AGGREGATION)
+      if (sortBy === 'likes') {
+          return this.publicacionModel.aggregate([
+              // 1. Filtrar documentos (por eliminado: false y por userId si existe)
+              { $match: filter },
+              
+              // 2. Proyectar el campo 'likeCount' calculando el tamaño del array 'likes'
+              {
+                  $addFields: {
+                      likeCount: { $size: '$likes' }
+                  }
+              },
+              
+              // 3. Ordenar por likeCount (descendente: más likes primero)
+              { $sort: { likeCount: -1, createdAt: -1 } }, 
+
+              // 4. Paginación
+              { $skip: offset },
+              { $limit: limit },
+
+              // 5. Lookup (Join) para popular los datos del usuario (la colección 'users' es el nombre por defecto)
+              {
+                  $lookup: {
+                      from: 'users', 
+                      localField: 'usuario',
+                      foreignField: '_id',
+                      as: 'usuario'
+                  }
+              },
+              // 6. Desestructurar el array 'usuario' creado por $lookup
+              { $unwind: '$usuario' },
+
+              // 7. Proyectar solo los campos necesarios (incluyendo el usuario populado)
+              {
+                  $project: {
+                      _id: 1,
+                      usuario: { _id: '$usuario._id', username: '$usuario.username', fotoPerfil: '$usuario.fotoPerfil' },
+                      titulo: 1,
+                      descripcion: 1,
+                      imagenUrl: 1,
+                      cloudinaryPublicId: 1,
+                      likes: 1, 
+                      eliminado: 1,
+                      createdAt: 1,
+                      updatedAt: 1,
+                  }
+              }
+          ]).exec() as unknown as PublicacionDocument[]; // Se requiere un cast
+      }
+
+      // Si sortBy no coincide con nada, usamos la opción más eficiente por defecto.
+      const sort: any = { createdAt: -1 }; 
+      return this.publicacionModel
+          .find(filter)
+          .sort(sort)
+          .skip(offset)
+          .limit(limit)
+          .populate('usuario', 'username fotoPerfil')
+          .exec();
   }
 
   async findById(postId: string): Promise<PublicacionDocument | null> {

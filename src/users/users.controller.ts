@@ -1,4 +1,4 @@
-import { Controller, Post, Body, HttpCode, HttpStatus, UseInterceptors, UploadedFile, Request, UseGuards, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, Delete, Param, Query, HttpStatus, UseInterceptors, UploadedFile, UseGuards, ParseFilePipe, MaxFileSizeValidator, FileTypeValidator, } from '@nestjs/common';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { UsersService } from './users.service';
 import { CreateUserDto } from './dto/create-user.dto';
@@ -30,4 +30,25 @@ export class UsersController {
     const { passwordHash, ...result } = user.toObject();
     return result;
   }
+
+  // Listar publicaciones
+  @Get()
+  async findAll() {
+    return this.usersService.findAll();
+  }
+
+  @Delete(':id')
+  @HttpCode(HttpStatus.OK)
+  async disableUser(@Param('id') userId: string) {
+    // El servicio realiza la baja lógica (alta = false)
+    return this.usersService.toggleAlta(userId, false); 
+  }
+
+  @Post(':id')
+  @HttpCode(HttpStatus.OK)
+  async enableUser(@Param('id') userId: string) {
+    // El servicio realiza la alta lógica (alta = true)
+    return this.usersService.toggleAlta(userId, true); 
+  }
+
 }
