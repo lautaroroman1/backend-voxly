@@ -13,7 +13,6 @@ export class CloudinaryService {
           resource_type: 'auto',
           folder: 'red-social/avatars',
           transformation: [
-            { width: 300, height: 300, crop: 'fill' },
             { quality: 'auto' },
           ],
         },
