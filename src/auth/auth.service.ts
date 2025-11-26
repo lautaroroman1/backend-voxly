@@ -21,6 +21,10 @@ export class AuthService {
       throw new UnauthorizedException('Credenciales inválidas');
     }
 
+    if (!user.alta) {
+      throw new UnauthorizedException('Tu cuenta ha sido deshabilitada por un administrador.');
+    }
+
     const payload = {
       role: user.perfil,
       sub: user._id.toString(),

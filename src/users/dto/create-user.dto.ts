@@ -47,4 +47,8 @@ export class CreateUserDto {
     @IsOptional()
     @IsString()
     cloudinaryPublicId?: string;
+
+    @IsOptional()
+    @IsString()
+    perfil?: string;
 }

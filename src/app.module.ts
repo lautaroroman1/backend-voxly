@@ -6,6 +6,7 @@ import { UsersModule } from './users/users.module';
 import { PublicacionesModule } from './publicaciones/publicaciones.module';
 import { ConfigModule } from '@nestjs/config';
 import { DatabaseModule } from './database/database.module';
+import { EstadisticasModule } from './estadisticas/estadisticas.module';
 
 @Module({
   imports: [
@@ -16,7 +17,8 @@ import { DatabaseModule } from './database/database.module';
     DatabaseModule,
     AuthModule,
     UsersModule,
-    PublicacionesModule
+    PublicacionesModule,
+    EstadisticasModule
   ],
   controllers: [AppController],
   providers: [AppService],
